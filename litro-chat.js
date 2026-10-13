@@ -231,3 +231,20 @@
   win.inert = true;
   setTimeout(function () { if (!opened) open(true, false); }, 4000);
 })();
+
+/* Временно: клик по номеру на ads.litro.kz → событие GA4 click_number.
+   Триггер в GTM-WKVVTRQ ловит только «tel:5070», а на ads.litro.kz номер +77788701775,
+   поэтому с 29.09.2026 звонки с рекламы не попадали в GA4 и в конверсию Google Ads.
+   Убрать этот блок, когда условие триггера в GTM заменят на «Click URL начинается с tel:»,
+   иначе каждый клик посчитается дважды. */
+(function () {
+  if (location.hostname !== "ads.litro.kz" || window.__litroTelClick) return;
+  window.__litroTelClick = true;
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest('a[href^="tel:"]');
+    if (!a) return;
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { window.dataLayer.push(arguments); }
+    gtag("event", "click_number", { send_to: "G-99EYT3XGP0", link_url: a.getAttribute("href") });
+  }, true);
+})();
