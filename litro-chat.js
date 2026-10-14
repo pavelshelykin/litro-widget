@@ -72,12 +72,22 @@
       body = $("lwBody"), input = $("lwIn"), sendBtn = $("lwSendBtn"), geoBtn = $("lwGeo");
   var greeted = false, opened = false;
 
-  function sid() {
-    var s = ""; try { s = localStorage.getItem("litro_sid") || ""; } catch (e) {}
-    if (!s) { s = "web-" + Date.now() + "-" + Math.floor(Math.random() * 99999); try { localStorage.setItem("litro_sid", s); } catch (e) {} }
-    return s;
+  function newSessionId() {
+    var token = "";
+    try {
+      var cryptoApi = window.crypto;
+      if (cryptoApi && typeof cryptoApi.randomUUID === "function") {
+        token = cryptoApi.randomUUID();
+      } else if (cryptoApi && typeof cryptoApi.getRandomValues === "function") {
+        var bytes = new window.Uint8Array(16);
+        cryptoApi.getRandomValues(bytes);
+        for (var i = 0; i < bytes.length; i++) token += bytes[i].toString(16).padStart(2, "0");
+      }
+    } catch (e) {}
+    if (!token) token = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    return "web-" + token;
   }
-  var id = sid();
+  var id = newSessionId();
 
   function tm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
 
@@ -182,7 +192,7 @@
     win.classList.toggle("open", show); launch.style.display = show ? "none" : "flex"; teaser.classList.remove("show");
     if (show) { if (!wasOpen) playOpenSound(); greet(); if (arguments[1] !== false) setTimeout(function () { input.focus(); }, 260); } else { launch.style.display = "flex"; launch.focus(); }
   }
-  function reset() { id = "web-" + Date.now() + "-" + Math.floor(Math.random() * 99999); try { localStorage.setItem("litro_sid", id); } catch (e) {} body.innerHTML = ""; greeted = false; greet(); }
+  function reset() { id = newSessionId(); body.innerHTML = ""; greeted = false; greet(); }
   function grow() { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 96) + "px"; sendBtn.classList.toggle("on", input.value.trim().length > 0); }
   function ask(q) {
     typing(true);
