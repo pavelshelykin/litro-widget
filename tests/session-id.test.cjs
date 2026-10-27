@@ -8,7 +8,7 @@ const widgetPath = path.join(__dirname, '..', 'litro-chat.js');
 const widgetSource = fs.readFileSync(widgetPath, 'utf8');
 
 function extractFunction(source, name) {
-  const marker = `function ${name}() {`;
+  const marker = `function ${name}(`;
   const start = source.indexOf(marker);
   assert.notEqual(start, -1, `${name} must exist in litro-chat.js`);
 
@@ -60,4 +60,14 @@ test('widget creates one ID on load, reuses it for messages, and resets through 
   assert.match(widgetSource, /function reset\(\) \{ id = newSessionId\(\);/);
   assert.doesNotMatch(widgetSource, /localStorage\.getItem\(["']litro_sid["']\)/);
   assert.doesNotMatch(widgetSource, /localStorage\.setItem\(["']litro_sid["']/);
+});
+
+test('chat endpoint follows the migration host list', () => {
+  const NEW_HOSTS = vm.runInNewContext(widgetSource.match(/var NEW_HOSTS = (\[[^\]]*\]);/)[1]);
+  const consts = { OLD_ENDPOINT: 'old', NEW_ENDPOINT: 'new', NEW_HOSTS };
+  const pick = vm.runInNewContext(`(${extractFunction(widgetSource, 'pickEndpoint')})`, consts);
+  assert.equal(pick('ads.litro.kz'), 'new');
+  assert.equal(pick('litro.kz'), 'old');
+  assert.equal(pick('www.litro.kz'), 'old');
+  assert.equal(pick(''), 'old');
 });
