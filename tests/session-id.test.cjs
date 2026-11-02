@@ -67,7 +67,8 @@ test('chat endpoint follows the migration host list', () => {
   const consts = { OLD_ENDPOINT: 'old', NEW_ENDPOINT: 'new', NEW_HOSTS };
   const pick = vm.runInNewContext(`(${extractFunction(widgetSource, 'pickEndpoint')})`, consts);
   assert.equal(pick('ads.litro.kz'), 'new');
-  assert.equal(pick('litro.kz'), 'old');
-  assert.equal(pick('www.litro.kz'), 'old');
+  assert.equal(pick('litro.kz'), 'new');
+  assert.equal(pick('www.litro.kz'), 'new');
+  assert.equal(pick('other.example'), 'old');
   assert.equal(pick(''), 'old');
 });
