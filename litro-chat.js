@@ -9,7 +9,7 @@
   // Перенос на корпоративный n8n: сайты из NEW_HOSTS уже работают через новый сервер, остальные — через старый.
   var OLD_ENDPOINT = "https://litro.app.n8n.cloud/webhook/47c44eeb-fa09-4ee8-aab1-a1eac36d6848/chat";
   var NEW_ENDPOINT = "https://n8n.litro-staging.com/webhook/47c44eeb-fa09-4ee8-aab1-a1eac36d6848/chat";
-  var NEW_HOSTS = ["ads.litro.kz"];
+  var NEW_HOSTS = ["ads.litro.kz", "litro.kz"];
   function pickEndpoint(host) {
     host = String(host || "").toLowerCase().replace(/^www\./, "");
     return NEW_HOSTS.indexOf(host) >= 0 ? NEW_ENDPOINT : OLD_ENDPOINT;
